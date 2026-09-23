@@ -1,0 +1,81 @@
+/*
+ * Archivo documentado para la entrega R5.
+ * Funcion principal: presentar acceso social responsive en ambos temas.
+ */
+.social-login {
+  display: grid;
+  gap: 0.8rem;
+  min-width: 0;
+}
+.social-buttons {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: 1fr;
+}
+.social-button {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 48px;
+  min-width: 0;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--border);
+  background: var(--surface-solid);
+  color: var(--text);
+  text-align: left;
+  font-weight: 650;
+}
+.social-button:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+.social-button:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+}
+.social-button small {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+.social-icon {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+}
+.social-icon svg {
+  width: 24px;
+  height: 24px;
+}
+.linked-accounts {
+  display: grid;
+  gap: 0.85rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.linked-accounts li {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 0;
+}
+.linked-accounts small {
+  display: block;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+@media (max-width: 400px) {
+  .social-button {
+    flex-wrap: wrap;
+  }
+  .social-button small {
+    width: 100%;
+    margin-left: 2.25rem;
+  }
+}
+/* This file exports: estilos sociales. */
+/* It is used by: styles/index.css. */
+/* It imports from: variables de tema existentes. */

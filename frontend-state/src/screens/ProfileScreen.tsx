@@ -4,6 +4,7 @@ import { StatusMessage } from '../components/StatusMessage';
 import { TextField } from '../components/TextField';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../services/api';
+import { LinkedAccounts } from '../components/LinkedAccounts';
 import { strongPasswordPattern, usernamePattern } from '../utils/validators';
 
 export const ProfileScreen = () => {
@@ -33,7 +34,11 @@ export const ProfileScreen = () => {
       await authApi.updateProfile(data);
       const fresh = await authApi.me();
       setUser(fresh.user ?? null);
-      setMessage('Perfil actualizado.');
+      setMessage(
+        data.email.trim().toLowerCase() !== user.email
+          ? 'Perfil actualizado. Verificá el nuevo email desde tu correo.'
+          : 'Perfil actualizado.'
+      );
     } catch (requestError: any) {
       setError(requestError.message ?? 'No se pudo guardar el perfil.');
     }
@@ -55,7 +60,9 @@ export const ProfileScreen = () => {
     <section className="page">
       <form className="card grid" onSubmit={saveProfile}>
         <h2>Mi perfil</h2>
-        <p><strong>Rol:</strong> {user.role}</p>
+        <p>
+          <strong>Rol:</strong> {user.role}
+        </p>
         <TextField
           label="Email"
           type="email"
@@ -85,35 +92,44 @@ export const ProfileScreen = () => {
         <button>Guardar perfil</button>
       </form>
 
-      <form className="card grid" onSubmit={savePassword}>
-        <h2>Cambiar contraseña</h2>
-        <TextField
-          label="Contraseña actual"
-          type="password"
-          registration={password.register('currentPassword', { required: 'Campo obligatorio.' })}
-          error={password.formState.errors.currentPassword}
-        />
-        <TextField
-          label="Nueva contraseña"
-          type="password"
-          registration={password.register('newPassword', {
-            required: 'Campo obligatorio.',
-            validate: (v) => strongPasswordPattern.test(v) || 'La contraseña debe tener entre 6 y 72 caracteres.'
-          })}
-          error={password.formState.errors.newPassword}
-        />
-        <TextField
-          label="Confirmar nueva contraseña"
-          type="password"
-          registration={password.register('confirmNewPassword', {
-            required: 'Campo obligatorio.',
-            validate: (v) => v === password.watch('newPassword') || 'Las contraseñas no coinciden.'
-          })}
-          error={password.formState.errors.confirmNewPassword}
-        />
-        <button>Cambiar contraseña</button>
-      </form>
-
+      <LinkedAccounts provider={user.authProvider} emailVerified={user.emailVerified} />
+      {user.hasPassword === false ? (
+        <section className="card">
+          <h2>Contraseña</h2>
+          <p>Esta cuenta usa acceso social y no tiene una contraseña local.</p>
+        </section>
+      ) : (
+        <form className="card grid" onSubmit={savePassword}>
+          <h2>Cambiar contraseña</h2>
+          <TextField
+            label="Contraseña actual"
+            type="password"
+            registration={password.register('currentPassword', { required: 'Campo obligatorio.' })}
+            error={password.formState.errors.currentPassword}
+          />
+          <TextField
+            label="Nueva contraseña"
+            type="password"
+            registration={password.register('newPassword', {
+              required: 'Campo obligatorio.',
+              validate: (v) =>
+                strongPasswordPattern.test(v) || 'La contraseña debe tener entre 6 y 72 caracteres.'
+            })}
+            error={password.formState.errors.newPassword}
+          />
+          <TextField
+            label="Confirmar nueva contraseña"
+            type="password"
+            registration={password.register('confirmNewPassword', {
+              required: 'Campo obligatorio.',
+              validate: (v) =>
+                v === password.watch('newPassword') || 'Las contraseñas no coinciden.'
+            })}
+            error={password.formState.errors.confirmNewPassword}
+          />
+          <button>Cambiar contraseña</button>
+        </form>
+      )}
       {error && <StatusMessage kind="error">{error}</StatusMessage>}
       {message && <StatusMessage kind="success">{message}</StatusMessage>}
     </section>

@@ -5,6 +5,8 @@ import { StatusMessage } from '../components/StatusMessage';
 import { TextField } from '../components/TextField';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../services/api';
+import { SocialLogin } from '../components/SocialLogin';
+import { OAuthFeedback } from '../components/OAuthFeedback';
 
 type FormData = { login: string; password: string };
 
@@ -45,7 +47,9 @@ export const LoginPage = () => {
 
       <form className="card grid auth-card" onSubmit={onSubmit} noValidate>
         <div className="auth-card__heading">
-          <span className="auth-card__icon" aria-hidden="true">→</span>
+          <span className="auth-card__icon" aria-hidden="true">
+            →
+          </span>
           <div>
             <p className="eyebrow">BIENVENIDO</p>
             <h2>Iniciar sesión</h2>
@@ -69,13 +73,17 @@ export const LoginPage = () => {
           error={errors.password}
         />
 
+        <OAuthFeedback />
         {serverError && <StatusMessage kind="error">{serverError}</StatusMessage>}
 
         <button className="primary-action" disabled={isSubmitting} type="submit">
           {isSubmitting ? 'Ingresando...' : 'Ingresar'}
         </button>
 
-        <div className="auth-divider"><span>o</span></div>
+        <SocialLogin />
+        <div className="auth-divider">
+          <span>o</span>
+        </div>
         <Link className="button-link secondary-action" to="/registro">
           ¿No tenés una cuenta? Crear una
         </Link>

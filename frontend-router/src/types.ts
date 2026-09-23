@@ -8,6 +8,8 @@ export type User = {
   displayName: string;
   bio: string;
   emailVerified?: boolean;
+  hasPassword?: boolean;
+  authProvider?: string | null;
 };
 
 export type ApiResponse<T = unknown> = {

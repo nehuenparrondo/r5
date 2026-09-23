@@ -4,7 +4,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { StatusMessage } from '../components/StatusMessage';
 import { TextField } from '../components/TextField';
 import { authApi } from '../services/api';
-import { normalizeEmail, normalizeUsername, strongPasswordPattern, usernamePattern } from '../utils/validators';
+import { SocialLogin } from '../components/SocialLogin';
+import {
+  normalizeEmail,
+  normalizeUsername,
+  strongPasswordPattern,
+  usernamePattern
+} from '../utils/validators';
 
 type FormData = {
   email: string;
@@ -47,7 +53,14 @@ export const RegisterPage = () => {
   return (
     <form className="card grid auth-card register-card" onSubmit={onSubmit} noValidate>
       <div className="auth-card__heading">
-        <button className="back-button" type="button" onClick={() => navigate('/login')} aria-label="Volver al login">←</button>
+        <button
+          className="back-button"
+          type="button"
+          onClick={() => navigate('/login')}
+          aria-label="Volver al login"
+        >
+          ←
+        </button>
         <div>
           <p className="eyebrow">NUEVA CUENTA</p>
           <h2>Crear cuenta</h2>
@@ -118,7 +131,10 @@ export const RegisterPage = () => {
       <button disabled={isSubmitting} type="submit">
         {isSubmitting ? 'Registrando...' : 'Registrarme'}
       </button>
-      <p className="muted auth-footnote">¿Ya tenés cuenta? <Link to="/login">Ingresar</Link></p>
+      <SocialLogin />
+      <p className="muted auth-footnote">
+        ¿Ya tenés cuenta? <Link to="/login">Ingresar</Link>
+      </p>
     </form>
   );
 };

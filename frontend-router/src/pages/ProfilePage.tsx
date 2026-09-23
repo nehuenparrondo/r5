@@ -4,6 +4,7 @@ import { StatusMessage } from '../components/StatusMessage';
 import { TextField } from '../components/TextField';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../services/api';
+import { LinkedAccounts } from '../components/LinkedAccounts';
 import { strongPasswordPattern, usernamePattern } from '../utils/validators';
 
 type ProfileForm = { email: string; username: string; displayName: string; bio: string };
@@ -41,7 +42,11 @@ export const ProfilePage = () => {
     try {
       await authApi.updateProfile(data);
       await refreshUser();
-      setMessage('Perfil actualizado.');
+      setMessage(
+        data.email.trim().toLowerCase() !== user?.email
+          ? 'Perfil actualizado. Verificá el nuevo email desde tu correo.'
+          : 'Perfil actualizado.'
+      );
     } catch (requestError: any) {
       setError(requestError?.response?.data?.message ?? 'No se pudo actualizar el perfil.');
     }
@@ -65,7 +70,9 @@ export const ProfilePage = () => {
     <section className="page">
       <div className="card">
         <h2>Mi perfil</h2>
-        <p><strong>Rol:</strong> {user.role}</p>
+        <p>
+          <strong>Rol:</strong> {user.role}
+        </p>
 
         <form className="grid" onSubmit={saveProfile}>
           <TextField
@@ -81,7 +88,8 @@ export const ProfilePage = () => {
             label="Username"
             registration={profileForm.register('username', {
               required: 'El username es obligatorio.',
-              validate: (value) => usernamePattern.test(value.trim()) || 'Usá letras, números, _ o .'
+              validate: (value) =>
+                usernamePattern.test(value.trim()) || 'Usá letras, números, _ o .'
             })}
             error={profileForm.formState.errors.username}
           />
@@ -102,40 +110,47 @@ export const ProfilePage = () => {
         </form>
       </div>
 
-      <form className="card grid" onSubmit={savePassword}>
-        <h2>Cambiar contraseña</h2>
-        <TextField
-          label="Contraseña actual"
-          type="password"
-          registration={passwordForm.register('currentPassword', {
-            required: 'Ingresá la contraseña actual.'
-          })}
-          error={passwordForm.formState.errors.currentPassword}
-        />
-        <TextField
-          label="Nueva contraseña"
-          type="password"
-          registration={passwordForm.register('newPassword', {
-            required: 'Ingresá una nueva contraseña.',
-            validate: (value) =>
-              strongPasswordPattern.test(value) ||
-              'La contraseña debe tener entre 6 y 72 caracteres.'
-          })}
-          error={passwordForm.formState.errors.newPassword}
-        />
-        <TextField
-          label="Confirmar nueva contraseña"
-          type="password"
-          registration={passwordForm.register('confirmNewPassword', {
-            required: 'Confirmá la nueva contraseña.',
-            validate: (value) =>
-              value === passwordForm.watch('newPassword') || 'Las contraseñas no coinciden.'
-          })}
-          error={passwordForm.formState.errors.confirmNewPassword}
-        />
-        <button disabled={passwordForm.formState.isSubmitting}>Actualizar contraseña</button>
-      </form>
-
+      <LinkedAccounts provider={user.authProvider} emailVerified={user.emailVerified} />
+      {user.hasPassword === false ? (
+        <section className="card">
+          <h2>Contraseña</h2>
+          <p>Esta cuenta usa acceso social y no tiene una contraseña local.</p>
+        </section>
+      ) : (
+        <form className="card grid" onSubmit={savePassword}>
+          <h2>Cambiar contraseña</h2>
+          <TextField
+            label="Contraseña actual"
+            type="password"
+            registration={passwordForm.register('currentPassword', {
+              required: 'Ingresá la contraseña actual.'
+            })}
+            error={passwordForm.formState.errors.currentPassword}
+          />
+          <TextField
+            label="Nueva contraseña"
+            type="password"
+            registration={passwordForm.register('newPassword', {
+              required: 'Ingresá una nueva contraseña.',
+              validate: (value) =>
+                strongPasswordPattern.test(value) ||
+                'La contraseña debe tener entre 6 y 72 caracteres.'
+            })}
+            error={passwordForm.formState.errors.newPassword}
+          />
+          <TextField
+            label="Confirmar nueva contraseña"
+            type="password"
+            registration={passwordForm.register('confirmNewPassword', {
+              required: 'Confirmá la nueva contraseña.',
+              validate: (value) =>
+                value === passwordForm.watch('newPassword') || 'Las contraseñas no coinciden.'
+            })}
+            error={passwordForm.formState.errors.confirmNewPassword}
+          />
+          <button disabled={passwordForm.formState.isSubmitting}>Actualizar contraseña</button>
+        </form>
+      )}
       {error && <StatusMessage kind="error">{error}</StatusMessage>}
       {message && <StatusMessage kind="success">{message}</StatusMessage>}
     </section>
