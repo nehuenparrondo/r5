@@ -3,28 +3,19 @@ import { createHash, randomBytes } from 'node:crypto';
 import type { Request, Response } from 'express';
 import type { ResultSetHeader, RowDataPacket } from 'mysql2';
 import { pool } from '../config/db.js';
-import { env } from '../config/env.js';
 import { isMailtrapConfigured, sendVerificationEmail } from '../services/email.service.js';
 import { writeAuditLog } from '../utils/audit.js';
-import { signAuthToken } from '../utils/jwt.js';
+import { issueAuthSession } from '../utils/authSession.js';
 
 type UserRow = RowDataPacket & {
   id: number;
   email: string;
   username: string;
-  password_hash: string;
+  password_hash: string | null;
   role: 'user' | 'admin';
   display_name: string;
   bio: string;
   email_verified_at: Date | null;
-};
-
-const authCookieOptions = {
-  httpOnly: true,
-  secure: env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
-  maxAge: 15 * 60 * 1000,
-  path: '/'
 };
 
 export const register = async (req: Request, res: Response): Promise<void> => {
@@ -125,7 +116,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
   const user = rows[0];
 
-  if (!user || !(await bcrypt.compare(password, user.password_hash))) {
+  if (!user || !user.password_hash || !(await bcrypt.compare(password, user.password_hash))) {
     await writeAuditLog(user?.id ?? null, 'login_failed', req.ip);
     res.status(401).json({ ok: false, message: 'Usuario o contraseña incorrectos.' });
     return;
@@ -133,12 +124,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
   if (!user.email_verified_at) {
     await writeAuditLog(user.id, 'login_unverified_email', req.ip);
-    res.status(403).json({ ok: false, message: 'Primero verificá tu email desde el enlace que enviamos.' });
+    res
+      .status(403)
+      .json({ ok: false, message: 'Primero verificá tu email desde el enlace que enviamos.' });
     return;
   }
 
-  const token = signAuthToken({ sub: String(user.id), role: user.role });
-  res.cookie('auth_token', token, authCookieOptions);
+  issueAuthSession(res, user.id, user.role);
   await writeAuditLog(user.id, 'login_success', req.ip);
 
   res.json({
@@ -187,9 +179,8 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
 export const me = async (req: Request, res: Response): Promise<void> => {
   const [rows] = await pool.execute<UserRow[]>(
     `SELECT
-       u.id, u.email, u.username,
-       r.name AS role, p.display_name, p.bio,
-       '' AS password_hash
+       u.id, u.email, u.username, u.password_hash,
+       u.email_verified_at, r.name AS role, p.display_name, p.bio
      FROM users u
      INNER JOIN roles r ON r.id = u.role_id
      INNER JOIN user_profiles p ON p.user_id = u.id
@@ -213,7 +204,10 @@ export const me = async (req: Request, res: Response): Promise<void> => {
       username: user.username,
       role: user.role,
       displayName: user.display_name,
-      bio: user.bio
+      bio: user.bio,
+      hasPassword: Boolean(user.password_hash),
+      emailVerified: Boolean(user.email_verified_at),
+      authProvider: req.auth?.provider ?? null
     }
   });
 };

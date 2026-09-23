@@ -7,6 +7,7 @@ import { errorHandler, notFoundHandler } from './middlewares/error.middleware.js
 import { adminRouter } from './routes/admin.routes.js';
 import { authRouter } from './routes/auth.routes.js';
 import { profileRouter } from './routes/profile.routes.js';
+import { oauthRouter } from './routes/oauthRoutes.js';
 
 export const app = express();
 
@@ -31,6 +32,7 @@ app.post('/api/health', (_req, res) => {
   res.json({ ok: true, message: 'API activa.' });
 });
 
+app.use('/api/auth/oauth', oauthRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/profile', profileRouter);
 app.use('/api/admin', adminRouter);

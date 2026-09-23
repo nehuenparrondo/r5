@@ -4,6 +4,7 @@ import { env } from '../config/env.js';
 export type AuthTokenPayload = {
   sub: string;
   role: 'user' | 'admin';
+  provider?: string;
 };
 
 export const signAuthToken = (payload: AuthTokenPayload): string =>

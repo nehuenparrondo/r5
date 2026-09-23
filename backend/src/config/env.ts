@@ -13,6 +13,20 @@ const envSchema = z.object({
   JWT_EXPIRES_IN: z.string().default('15m'),
   CORS_ORIGINS: z.string().min(1),
   APP_URL: z.string().url().default('http://localhost:5173'),
+  API_PUBLIC_URL: z.string().url().default('http://localhost:3000'),
+  GOOGLE_CLIENT_ID: z.string().default(''),
+  GOOGLE_CLIENT_SECRET: z.string().default(''),
+  GOOGLE_REDIRECT_URI: z.string().default(''),
+  GITHUB_CLIENT_ID: z.string().default(''),
+  GITHUB_CLIENT_SECRET: z.string().default(''),
+  GITHUB_REDIRECT_URI: z.string().default(''),
+  FACEBOOK_CLIENT_ID: z.string().default(''),
+  FACEBOOK_CLIENT_SECRET: z.string().default(''),
+  FACEBOOK_REDIRECT_URI: z.string().default(''),
+  FACEBOOK_GRAPH_VERSION: z
+    .string()
+    .regex(/^v\d+\.0$/)
+    .default('v23.0'),
   MAILTRAP_HOST: z.string().default('sandbox.smtp.mailtrap.io'),
   MAILTRAP_PORT: z.coerce.number().int().positive().default(2525),
   MAILTRAP_USER: z.string().default(''),

@@ -11,7 +11,7 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction): vo
 
   try {
     const payload = verifyAuthToken(token);
-    req.auth = { userId: Number(payload.sub), role: payload.role };
+    req.auth = { userId: Number(payload.sub), role: payload.role, provider: payload.provider };
     next();
   } catch {
     res.clearCookie('auth_token');

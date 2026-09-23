@@ -1,0 +1,22 @@
+{
+  "name": "sistema-usuarios-r5",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint backend/src backend/tests frontend-router/src frontend-state/src && npm run typecheck",
+    "typecheck": "tsc --noEmit -p backend/tsconfig.json && tsc --noEmit -p frontend-router/tsconfig.json && tsc --noEmit -p frontend-state/tsconfig.json",
+    "format": "node scripts/format.mjs",
+    "format:check": "node scripts/format.mjs --check",
+    "test": "npm test --prefix backend",
+    "build": "npm run build --prefix backend && npm run build --prefix frontend-router && npm run build --prefix frontend-state"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "globals": "^16.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.0.0"
+  }
+}

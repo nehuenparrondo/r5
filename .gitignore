@@ -5,3 +5,7 @@ dist/
 .DS_Store
 .vscode/
 coverage/
+.npm-cache/
+*.tsbuildinfo
+.env.*
+!.env.example

@@ -4,6 +4,7 @@ declare global {
       auth?: {
         userId: number;
         role: 'user' | 'admin';
+        provider?: string;
       };
     }
   }
