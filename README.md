@@ -77,17 +77,20 @@ Ambos front-ends usan `http://localhost:5173` por defecto, por lo que conviene e
 ## Modelo relacional y 3FN
 
 ### 1FN
+
 Cada campo contiene un único valor atómico. No hay listas de roles, emails o perfiles dentro de una misma columna.
 
 ### 2FN
+
 Todas las tablas usan una clave primaria simple. Cada atributo no clave depende completamente de su clave primaria.
 
 ### 3FN
+
 Los roles están separados en `roles`, los datos de autenticación en `users`, el perfil en `user_profiles` y los eventos en `audit_logs`. No se repite el nombre del rol dentro de cada usuario ni se guardan datos derivados que dependan de otros atributos no clave.
 
 ## Endpoints
 
-Por requerimiento de la consigna, todos los endpoints funcionales usan `POST`, incluso las operaciones de lectura.
+Los endpoints originales usan `POST`, incluso las operaciones de lectura. R5 agrega los `GET` de OAuth porque el proveedor necesita redirecciones reales.
 
 - `POST /api/health`
 - `POST /api/auth/register`
@@ -112,3 +115,51 @@ Por requerimiento de la consigna, todos los endpoints funcionales usan `POST`, i
 10. Admin listando usuarios sin recibir hashes.
 11. Tema claro/oscuro persistente.
 12. Diseño en mobile, tablet y desktop.
+
+## Login social (OAuth 2.0)
+
+R5 agrega **solo Google, GitHub y Facebook/Meta** en ambas interfaces. Mantiene MySQL,
+TypeScript, usuarios, roles, auditoría y el login local existente. Facebook y Meta
+son el mismo proveedor. No hay integración de Discord, Twitch ni X.
+
+1. Instalar dependencias de herramientas en esta raíz con `npm install`.
+2. Respaldar o clonar la base para R5; revisar `DB_NAME` en `backend/.env`.
+3. Aplicar `npm run migrate-oauth` desde backend con permisos de migración.
+4. Adaptar y aplicar `backend/database/least-privilege.sql` como administrador.
+5. Crear las apps en Google Cloud Console, GitHub Developer Settings y Meta for Developers.
+6. Copiar únicamente las nuevas variables de `backend/.env.example` al `.env` existente:
+   `API_PUBLIC_URL`, `GOOGLE_CLIENT_ID/CLIENT_SECRET/REDIRECT_URI`,
+   `GITHUB_CLIENT_ID/CLIENT_SECRET/REDIRECT_URI`,
+   `FACEBOOK_CLIENT_ID/CLIENT_SECRET/REDIRECT_URI` y `FACEBOOK_GRAPH_VERSION`.
+7. Registrar callbacks exactos:
+   `http://localhost:3000/api/auth/oauth/google/callback`,
+   `http://localhost:3000/api/auth/oauth/github/callback` y
+   `http://localhost:3000/api/auth/oauth/facebook/callback`.
+
+Los botones sin credenciales aparecen deshabilitados como “Sin configurar”.
+La guía [Configuración y pruebas](docs/OAUTH_CONFIGURACION_Y_PRUEBAS.md) explica las tres
+consolas, permisos, HTTPS, pruebas manuales y decisiones para la defensa oral.
+
+Google/GitHub solo autovinculan cuando ambos lados verificaron el correo. Facebook
+se vincula explícitamente desde el perfil; un usuario nuevo verifica su email con
+el servicio de correo existente antes de ingresar. Los cambios de email también
+requieren nueva verificación para evitar vinculaciones con una dirección ajena.
+
+Se reutiliza `auth_token` HttpOnly; no se inventa una infraestructura de refresh
+tokens o sesiones que esta base no tenía. Las nuevas cuentas sociales tienen
+`password_hash = NULL`. Nunca se guardan access tokens externos.
+
+Rutas nuevas:
+
+- `GET /api/auth/oauth/providers`: disponibilidad pública, sin credenciales.
+- `GET /api/auth/oauth/:provider`: inicio con redirección.
+- `GET /api/auth/oauth/:provider/callback`: state de un solo uso y sesión.
+- `POST /api/auth/oauth/accounts`: cuentas del usuario autenticado.
+- `POST /api/auth/oauth/:provider/link`: vinculación explícita protegida.
+
+Desde la raíz, ejecutar `npm run lint`, `npm run format`, `npm run format:check`,
+`npm test` y `npm run build`. Las pruebas simulan MySQL y las APIs externas;
+las credenciales reales y la prueba manual en cada proveedor siguen siendo necesarias.
+
+Ver también [Cumplimiento](docs/CUMPLIMIENTO_REQUERIMIENTOS.md) y
+[Mapa de archivos](docs/MAPA_DE_ARCHIVOS.md).
