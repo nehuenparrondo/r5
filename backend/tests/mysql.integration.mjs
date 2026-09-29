@@ -65,36 +65,6 @@ try {
     '127.0.0.1'
   );
   assert.equal(github.user.id, first.user.id);
-  await assert.rejects(
-    authenticateOAuthAccount('facebook', { ...profile, emailVerified: false }, null, '127.0.0.1'),
-    { reason: 'link_required' }
-  );
-  const facebook = await authenticateOAuthAccount(
-    'facebook',
-    { ...profile, emailVerified: false },
-    first.user.id,
-    '127.0.0.1'
-  );
-  assert.equal(facebook.user.id, first.user.id);
-  await assert.rejects(
-    authenticateOAuthAccount(
-      'facebook',
-      {
-        ...profile,
-        providerUserId: 'new-facebook',
-        email: 'unverified@example.com',
-        emailVerified: false
-      },
-      null,
-      '127.0.0.1'
-    ),
-    { reason: 'verification_unavailable' }
-  );
-  const [pending] = await connection.execute('SELECT id FROM users WHERE email = ?', [
-    'unverified@example.com'
-  ]);
-  assert.equal(pending.length, 0);
-
   const racingProfile = { ...profile, providerUserId: 'race-123', email: 'race@example.com' };
   const raced = await Promise.all([
     authenticateOAuthAccount('google', racingProfile, null, '127.0.0.1'),
@@ -109,7 +79,7 @@ try {
     'SELECT provider FROM oauth_accounts WHERE user_id = ?',
     [first.user.id]
   );
-  assert.equal(accounts.length, 3);
+  assert.equal(accounts.length, 2);
 
   const state = randomSecret();
   const browser = randomSecret();
@@ -128,9 +98,7 @@ try {
   ]);
   assert.equal(consumed.filter((result) => result.status === 'fulfilled').length, 1);
   assert.equal(consumed.filter((result) => result.status === 'rejected').length, 1);
-  console.log(
-    'MYSQL_INTEGRATION_OK: esquema, migracion repetida, tres proveedores, rollback y concurrencia.'
-  );
+  console.log('MYSQL_INTEGRATION_OK: esquema, migracion repetida, dos proveedores y concurrencia.');
 } catch (error) {
   console.error('MYSQL_INTEGRATION_FAILED:', error.code ?? error.reason ?? error.message);
   process.exitCode = 1;

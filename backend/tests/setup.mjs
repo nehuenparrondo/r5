@@ -20,9 +20,9 @@ Object.assign(process.env, {
   GITHUB_CLIENT_ID: 'test-github',
   GITHUB_CLIENT_SECRET: 'test-github-secret',
   GITHUB_REDIRECT_URI: 'http://localhost:3000/api/auth/oauth/github/callback',
-  FACEBOOK_CLIENT_ID: 'test-facebook',
-  FACEBOOK_CLIENT_SECRET: 'test-facebook-secret',
-  FACEBOOK_REDIRECT_URI: 'http://localhost:3000/api/auth/oauth/facebook/callback',
+  DISCORD_CLIENT_ID: 'test-discord',
+  DISCORD_CLIENT_SECRET: 'test-discord-secret',
+  DISCORD_REDIRECT_URI: 'http://localhost:3000/api/auth/oauth/discord/callback',
   MAILTRAP_USER: '',
   MAILTRAP_PASS: ''
 });

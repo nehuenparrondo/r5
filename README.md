@@ -118,32 +118,26 @@ Los endpoints originales usan `POST`, incluso las operaciones de lectura. R5 agr
 
 ## Login social (OAuth 2.0)
 
-R5 agrega **solo Google, GitHub y Facebook/Meta** en ambas interfaces. Mantiene MySQL,
-TypeScript, usuarios, roles, auditoría y el login local existente. Facebook y Meta
-son el mismo proveedor. No hay integración de Discord, Twitch ni X.
+R5 agrega acceso con **Google, GitHub y Discord** en ambas interfaces. Mantiene MySQL,
+TypeScript, usuarios, roles, auditoría y el login local existente.
 
-1. Instalar dependencias de herramientas en esta raíz con `npm install`.
-2. Respaldar o clonar la base para R5; revisar `DB_NAME` en `backend/.env`.
-3. Aplicar `npm run migrate-oauth` desde backend con permisos de migración.
-4. Adaptar y aplicar `backend/database/least-privilege.sql` como administrador.
-5. Crear las apps en Google Cloud Console, GitHub Developer Settings y Meta for Developers.
-6. Copiar únicamente las nuevas variables de `backend/.env.example` al `.env` existente:
-   `API_PUBLIC_URL`, `GOOGLE_CLIENT_ID/CLIENT_SECRET/REDIRECT_URI`,
-   `GITHUB_CLIENT_ID/CLIENT_SECRET/REDIRECT_URI`,
-   `FACEBOOK_CLIENT_ID/CLIENT_SECRET/REDIRECT_URI` y `FACEBOOK_GRAPH_VERSION`.
-7. Registrar callbacks exactos:
+1. Instalar dependencias desde esta raíz con `npm install`.
+2. Respaldar la base y revisar `DB_NAME` en `backend/.env`.
+3. Aplicar `npm run migrate-oauth` desde `backend` con permisos de migración.
+4. Crear las aplicaciones en Google Cloud Console, GitHub Developer Settings y Discord Developer Portal.
+5. Completar las variables de los tres proveedores indicadas en `backend/.env.example`.
+6. Registrar estos callbacks exactos:
    `http://localhost:3000/api/auth/oauth/google/callback`,
-   `http://localhost:3000/api/auth/oauth/github/callback` y
-   `http://localhost:3000/api/auth/oauth/facebook/callback`.
+   `http://localhost:3000/api/auth/oauth/github/callback`,
+   `http://localhost:3000/api/auth/oauth/discord/callback`.
 
-Los botones sin credenciales aparecen deshabilitados como “Sin configurar”.
-La guía [Configuración y pruebas](docs/OAUTH_CONFIGURACION_Y_PRUEBAS.md) explica las tres
-consolas, permisos, HTTPS, pruebas manuales y decisiones para la defensa oral.
+Antes de iniciar sesión se muestran los botones Google, GitHub y Discord. En el perfil no se
+muestran botones de vinculación: “Cuentas vinculadas” solo enumera los proveedores
+asociados al usuario.
 
-Google/GitHub solo autovinculan cuando ambos lados verificaron el correo. Facebook
-se vincula explícitamente desde el perfil; un usuario nuevo verifica su email con
-el servicio de correo existente antes de ingresar. Los cambios de email también
-requieren nueva verificación para evitar vinculaciones con una dirección ajena.
+Los proveedores se vinculan automáticamente a una cuenta existente únicamente cuando
+el proveedor confirma el correo y coincide con el correo local verificado. Así una
+persona puede entrar por cualquiera de los dos métodos sin crear usuarios duplicados.
 
 Se reutiliza `auth_token` HttpOnly; no se inventa una infraestructura de refresh
 tokens o sesiones que esta base no tenía. Las nuevas cuentas sociales tienen
@@ -161,5 +155,9 @@ Desde la raíz, ejecutar `npm run lint`, `npm run format`, `npm run format:check
 `npm test` y `npm run build`. Las pruebas simulan MySQL y las APIs externas;
 las credenciales reales y la prueba manual en cada proveedor siguen siendo necesarias.
 
-Ver también [Cumplimiento](docs/CUMPLIMIENTO_REQUERIMIENTOS.md) y
+La [guía completa](docs/GUIA_LOGIN_GOOGLE_GITHUB.md) explica el flujo, la vinculación,
+la base de datos, los archivos importantes y la puesta en marcha. Ver también
+[Configuración y pruebas](docs/OAUTH_CONFIGURACION_Y_PRUEBAS.md),
+[Despliegue](docs/DESPLIEGUE_R5.md),
+[Cumplimiento](docs/CUMPLIMIENTO_REQUERIMIENTOS.md) y
 [Mapa de archivos](docs/MAPA_DE_ARCHIVOS.md).

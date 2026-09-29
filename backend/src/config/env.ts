@@ -20,13 +20,9 @@ const envSchema = z.object({
   GITHUB_CLIENT_ID: z.string().default(''),
   GITHUB_CLIENT_SECRET: z.string().default(''),
   GITHUB_REDIRECT_URI: z.string().default(''),
-  FACEBOOK_CLIENT_ID: z.string().default(''),
-  FACEBOOK_CLIENT_SECRET: z.string().default(''),
-  FACEBOOK_REDIRECT_URI: z.string().default(''),
-  FACEBOOK_GRAPH_VERSION: z
-    .string()
-    .regex(/^v\d+\.0$/)
-    .default('v23.0'),
+  DISCORD_CLIENT_ID: z.string().default(''),
+  DISCORD_CLIENT_SECRET: z.string().default(''),
+  DISCORD_REDIRECT_URI: z.string().default(''),
   MAILTRAP_HOST: z.string().default('sandbox.smtp.mailtrap.io'),
   MAILTRAP_PORT: z.coerce.number().int().positive().default(2525),
   MAILTRAP_USER: z.string().default(''),

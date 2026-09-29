@@ -12,6 +12,7 @@ export type OAuthProvider = {
   id: string;
   label: string;
   authorizationUrl: string;
+  issuer?: string;
   tokenUrl: string;
   userInfoUrl: string;
   scope: string;

@@ -1,6 +1,6 @@
 /*
  * Archivo documentado para la entrega R5.
- * Funcion principal: configurar Google, GitHub y Facebook sin duplicar el flujo.
+ * Funcion principal: configurar Google, GitHub y Discord sin duplicar el flujo.
  */
 import { z } from 'zod';
 import { env } from './env.js';
@@ -27,18 +27,19 @@ const githubEmails = z
     })
   )
   .max(100);
-const facebookProfile = z.object({
+const discordProfile = z.object({
   id: z.string().min(1).max(255),
-  name: z.string().max(500).optional(),
-  email: z.string().email().max(254).optional()
+  username: z.string().min(1).max(100),
+  global_name: z.string().max(500).nullable().optional(),
+  email: z.string().email().max(254).nullable().optional(),
+  verified: z.boolean().optional()
 });
-const credentials = (prefix: 'GOOGLE' | 'GITHUB' | 'FACEBOOK') => ({
+const credentials = (prefix: 'GOOGLE' | 'GITHUB' | 'DISCORD') => ({
   clientId: env[`${prefix}_CLIENT_ID`],
   clientSecret: env[`${prefix}_CLIENT_SECRET`],
   redirectUri: env[`${prefix}_REDIRECT_URI`]
 });
 
-// Solo Google y GitHub anuncian PKCE S256 para estos flujos web.
 export const oauthProviders: Record<string, OAuthProvider> = {
   google: {
     id: 'google',
@@ -63,6 +64,7 @@ export const oauthProviders: Record<string, OAuthProvider> = {
     id: 'github',
     label: 'GitHub',
     authorizationUrl: 'https://github.com/login/oauth/authorize',
+    issuer: 'https://github.com/login/oauth',
     tokenUrl: 'https://github.com/login/oauth/access_token',
     userInfoUrl: 'https://api.github.com/user',
     extraProfileUrl: 'https://api.github.com/user/emails',
@@ -83,24 +85,22 @@ export const oauthProviders: Record<string, OAuthProvider> = {
       };
     }
   },
-  facebook: {
-    id: 'facebook',
-    label: 'Facebook',
-    authorizationUrl: `https://www.facebook.com/${env.FACEBOOK_GRAPH_VERSION}/dialog/oauth`,
-    tokenUrl: `https://graph.facebook.com/${env.FACEBOOK_GRAPH_VERSION}/oauth/access_token`,
-    userInfoUrl: `https://graph.facebook.com/${env.FACEBOOK_GRAPH_VERSION}/me`,
-    scope: 'email,public_profile',
+  discord: {
+    id: 'discord',
+    label: 'Discord',
+    authorizationUrl: 'https://discord.com/oauth2/authorize',
+    tokenUrl: 'https://discord.com/api/oauth2/token',
+    userInfoUrl: 'https://discord.com/api/users/@me',
+    scope: 'identify email',
     pkce: false,
-    profileParams: { fields: 'id,name,email' },
-    ...credentials('FACEBOOK'),
+    ...credentials('DISCORD'),
     mapProfile(raw): OAuthProfile {
-      const profile = facebookProfile.parse(raw);
-      // Facebook no proporciona email_verified: no inferimos esa garantia.
+      const profile = discordProfile.parse(raw);
       return {
         providerUserId: profile.id,
         email: profile.email ?? null,
-        emailVerified: false,
-        name: profile.name ?? 'Usuario Facebook'
+        emailVerified: profile.verified === true,
+        name: profile.global_name || profile.username
       };
     }
   }

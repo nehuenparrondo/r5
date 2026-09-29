@@ -4,11 +4,15 @@
  */
 import { useEffect, useState } from 'react';
 import { oauthApi, type LinkedAccount } from '../services/oauth';
-import { SocialLogin, ProviderIcon } from './SocialLogin';
+import { ProviderIcon } from './SocialLogin';
 import { OAuthFeedback } from './OAuthFeedback';
 import { StatusMessage } from './StatusMessage';
 
-const labels: Record<string, string> = { google: 'Google', github: 'GitHub', facebook: 'Facebook' };
+const labels: Record<string, string> = {
+  google: 'Google',
+  github: 'GitHub',
+  discord: 'Discord'
+};
 export const LinkedAccounts = ({
   provider,
   emailVerified
@@ -69,7 +73,6 @@ export const LinkedAccounts = ({
         </ul>
       )}
       {error && <StatusMessage kind="error">{error}</StatusMessage>}
-      {emailVerified !== false && <SocialLogin linking />}
     </section>
   );
 };

@@ -103,8 +103,8 @@ export const oauthCallback = async (req: Request, res: Response): Promise<void> 
     linking = flow.linkUserId !== null;
     if (query.error)
       throw new OAuthError(query.error === 'access_denied' ? 'cancelled' : 'provider_unavailable');
-    if (query.iss && query.iss !== new URL(provider.authorizationUrl).origin)
-      throw new OAuthError('invalid_profile');
+    const expectedIssuer = provider.issuer ?? new URL(provider.authorizationUrl).origin;
+    if (query.iss && query.iss !== expectedIssuer) throw new OAuthError('invalid_profile');
     const profile = await fetchOAuthProfile(provider, query.code!, flow.verifier);
     const result = await authenticateOAuthAccount(provider.id, profile, flow.linkUserId, req.ip);
     if (result.requiresVerification) {

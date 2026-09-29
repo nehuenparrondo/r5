@@ -97,14 +97,14 @@ test('email verificado vincula al usuario verificado existente y conserva su rol
   assert.equal(store.created, 0);
   assert.equal(store.links[0][0], existing.id);
 });
-test('Facebook no toma una cuenta existente por coincidencia de email', async () => {
+test('un proveedor sin email verificado no toma una cuenta existente por coincidencia', async () => {
   const store = makeStore({
     async findByEmail() {
       return existing;
     }
   });
   await assert.rejects(
-    resolveOAuthIdentity(store, 'facebook', { ...profile, emailVerified: false }),
+    resolveOAuthIdentity(store, 'external', { ...profile, emailVerified: false }),
     { reason: 'link_required' }
   );
   assert.equal(store.links.length, 0);
@@ -118,9 +118,9 @@ test('un registro local pendiente no se fusiona aunque Google confirme el correo
   await assert.rejects(resolveOAuthIdentity(store, 'google', profile), { reason: 'link_required' });
   assert.equal(store.links.length, 0);
 });
-test('Facebook nuevo requiere confirmacion local antes de emitir sesion', async () => {
+test('una identidad con email no verificado requiere confirmacion antes de emitir sesion', async () => {
   const store = makeStore();
-  const result = await resolveOAuthIdentity(store, 'facebook', {
+  const result = await resolveOAuthIdentity(store, 'external', {
     ...profile,
     emailVerified: false
   });
@@ -128,11 +128,11 @@ test('Facebook nuevo requiere confirmacion local antes de emitir sesion', async 
   assert.equal(store.verification, 1);
   assert.equal(store.events.includes('oauth_login'), false);
 });
-test('vinculacion explicita permite Facebook sin email en una sesion verificada', async () => {
+test('la vinculacion explicita permite un proveedor sin email en una sesion verificada', async () => {
   const store = makeStore();
   const result = await resolveOAuthIdentity(
     store,
-    'facebook',
+    'external',
     { ...profile, email: null, emailVerified: false },
     existing.id
   );

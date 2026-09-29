@@ -22,7 +22,13 @@ import {
 const fixtures = {
   google: { sub: '12345', email: 'USER@example.com', email_verified: true, name: '  Ana  Test ' },
   github: { id: 12345, login: 'ana', name: 'Ana Test' },
-  facebook: { id: '12345', email: 'ana@example.com', name: 'Ana Test', verified: true }
+  discord: {
+    id: '12345',
+    username: 'ana',
+    global_name: 'Ana Test',
+    email: 'USER@example.com',
+    verified: true
+  }
 };
 for (const provider of Object.values(oauthProviders)) {
   test(`${provider.id}: autorizacion, token y perfil por el flujo generico`, async () => {
@@ -54,11 +60,8 @@ for (const provider of Object.values(oauthProviders)) {
     };
     const profile = await fetchOAuthProfile(provider, 'authorization-code', verifier, fakeFetch);
     assert.equal(profile.providerUserId, '12345');
-    assert.equal(profile.emailVerified, provider.id !== 'facebook');
-    assert.equal(
-      profile.email,
-      provider.id === 'facebook' ? 'ana@example.com' : 'user@example.com'
-    );
+    assert.equal(profile.emailVerified, true);
+    assert.equal(profile.email, 'user@example.com');
     assert.equal('access_token' in profile, false);
     assert.equal(calls.length, provider.extraProfileUrl ? 3 : 2);
   });
@@ -109,7 +112,7 @@ test('callback rechaza campos ausentes, repetidos, objetos y respuestas ambiguas
 });
 test('no admite proveedores heredados ni redirecciones abiertas', () => {
   assert.throws(() => getProvider('__proto__'), OAuthError);
-  assert.throws(() => getProvider('discord'), OAuthError);
+  assert.throws(() => getProvider('facebook'), OAuthError);
   assert.throws(() => frontendOrigin('https://evil.test'), OAuthError);
   assert.throws(() => frontendOrigin('http://localhost:5173/redirect'), OAuthError);
   assert.equal(frontendOrigin('http://localhost:5174'), 'http://localhost:5174');
@@ -120,9 +123,6 @@ test('no admite proveedores heredados ni redirecciones abiertas', () => {
   } finally {
     oauthProviders.google.redirectUri = previous;
   }
-});
-test('Facebook no infiere email verificado del campo verified', () => {
-  assert.equal(oauthProviders.facebook.mapProfile(fixtures.facebook).emailVerified, false);
 });
 test('Google valida tipos estrictos de email_verified', () => {
   assert.throws(() =>
@@ -135,6 +135,15 @@ test('GitHub sin correo verificado no usa el email publico como respaldo', () =>
     [{ email: 'victim@example.com', primary: true, verified: false }]
   );
   assert.equal(result.email, null);
+  assert.equal(result.emailVerified, false);
+});
+test('Discord exige que el proveedor confirme el correo', () => {
+  const result = oauthProviders.discord.mapProfile({
+    ...fixtures.discord,
+    email: 'victim@example.com',
+    verified: false
+  });
+  assert.equal(result.email, 'victim@example.com');
   assert.equal(result.emailVerified, false);
 });
 test('errores HTTP, JSON invalido y tokens ausentes producen fallos seguros', async () => {

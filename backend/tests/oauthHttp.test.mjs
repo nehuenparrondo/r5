@@ -95,8 +95,14 @@ before(async () => {
     if (url.includes('/user/emails'))
       return Response.json([{ email: user.email, verified: true, primary: true }]);
     if (url.includes('api.github.com')) return Response.json({ id: 12345, login: 'ana' });
-    if (url.includes('graph.facebook.com'))
-      return Response.json({ id: '12345', email: user.email, name: 'Ana' });
+    if (url.includes('discord.com/api/users/@me'))
+      return Response.json({
+        id: '12345',
+        username: 'ana',
+        global_name: 'Ana',
+        email: user.email,
+        verified: true
+      });
     throw new Error('Se bloqueo una conexion externa inesperada.');
   };
   server = app.listen(0, '127.0.0.1');
@@ -135,22 +141,23 @@ const startFlow = async (provider) => {
   return { state: location.searchParams.get('state'), cookie: cookie.split(';')[0] };
 };
 
-test('metadatos exponen solo tres proveedores y ninguna credencial', async () => {
+test('metadatos exponen los tres proveedores y ninguna credencial', async () => {
   const response = await fetch(`${base}/api/auth/oauth/providers`);
   const data = await response.json();
   assert.deepEqual(
     data.providers.map((provider) => provider.id),
-    ['google', 'github', 'facebook']
+    ['google', 'github', 'discord']
   );
   assert.equal(JSON.stringify(data).includes('secret'), false);
   assert.equal(JSON.stringify(data).includes('clientId'), false);
 });
 
-for (const provider of ['google', 'github', 'facebook']) {
+for (const provider of ['google', 'github', 'discord']) {
   test(`${provider}: boton/inicio → callback → JWT HttpOnly → perfil activo`, async () => {
     const flow = await startFlow(provider);
+    const issuer = provider === 'github' ? '&iss=https%3A%2F%2Fgithub.com%2Flogin%2Foauth' : '';
     const response = await fetch(
-      `${base}/api/auth/oauth/${provider}/callback?state=${flow.state}&code=provider-code`,
+      `${base}/api/auth/oauth/${provider}/callback?state=${flow.state}&code=provider-code${issuer}`,
       { headers: { Cookie: flow.cookie }, redirect: 'manual' }
     );
     assert.equal(response.status, 303);
@@ -196,7 +203,7 @@ test('cancelacion y navegador incorrecto no intercambian codes por tokens', asyn
   );
   assert.match(cancelled.headers.get('location'), /oauth_cancelled/);
   assert.equal(tokenCalls, prior);
-  assert.ok(transactionDeletes >= 4);
+  assert.ok(transactionDeletes >= 3);
 });
 test('el inicio no redirige a destinos elegidos por un atacante', async () => {
   const response = await fetch(`${base}/api/auth/oauth/google?origin=https://evil.test`, {
@@ -230,7 +237,7 @@ test('contraseña incorrecta y cuenta social sin hash se rechazan sin llamar bcr
       (await post('/api/auth/login', { login: user.email, password: 'anything' })).status,
       401
     );
-    const cookie = `auth_token=${signAuthToken({ sub: '7', role: 'user', provider: 'facebook' })}`;
+    const cookie = `auth_token=${signAuthToken({ sub: '7', role: 'user', provider: 'github' })}`;
     assert.equal(
       (
         await post(
@@ -254,7 +261,7 @@ test('vinculos privados y vinculacion explicita requieren sesion y Origin valido
   const cookie = `auth_token=${signAuthToken({ sub: '7', role: 'user' })}`;
   const accounts = await post('/api/auth/oauth/accounts', {}, cookie);
   assert.equal(accounts.status, 200);
-  const response = await fetch(`${base}/api/auth/oauth/facebook/link`, {
+  const response = await fetch(`${base}/api/auth/oauth/github/link`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Cookie: cookie },
     body: '{}'
