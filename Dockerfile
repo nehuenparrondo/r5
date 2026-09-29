@@ -28,6 +28,6 @@ COPY --from=build /app/backend/dist ./backend/dist
 COPY --from=build /app/backend/database ./backend/database
 COPY --from=build /app/frontend-router/dist ./frontend-router/dist
 
-EXPOSE 3000
+EXPOSE 8080
 
 CMD ["npm", "run", "start:production", "--prefix", "backend"]

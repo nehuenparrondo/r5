@@ -1,6 +1,15 @@
 import 'dotenv/config';
 import { z } from 'zod';
 
+const providerEnvironment = {
+  ...process.env,
+  DB_HOST: process.env.DB_HOST || process.env.MYSQL_ADDON_HOST,
+  DB_PORT: process.env.DB_PORT || process.env.MYSQL_ADDON_PORT,
+  DB_NAME: process.env.DB_NAME || process.env.MYSQL_ADDON_DB,
+  DB_USER: process.env.DB_USER || process.env.MYSQL_ADDON_USER,
+  DB_PASSWORD: process.env.DB_PASSWORD || process.env.MYSQL_ADDON_PASSWORD
+};
+
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive().default(3000),
@@ -30,9 +39,9 @@ const envSchema = z.object({
   MAIL_FROM: z.string().default('Sistema Usuarios <no-reply@sistema-usuarios.local>')
 });
 
-export const env = envSchema.parse(process.env);
+export const env = envSchema.parse(providerEnvironment);
 export const allowedOrigins = env.CORS_ORIGINS.split(',').map((value) => value.trim());
 
 // Este archivo exporta: env y allowedOrigins.
 // Se usa en: configuración de base de datos, JWT y servidor.
-// Importa de: dotenv y zod.
+// Importa de: dotenv y zod; admite variables locales y las generadas por Clever Cloud.

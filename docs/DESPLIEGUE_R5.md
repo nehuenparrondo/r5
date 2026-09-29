@@ -10,10 +10,10 @@ y disponible en el repositorio como la segunda implementación exigida.
 ## Servicios
 
 1. Subir este repositorio a GitHub.
-2. Crear un proyecto en Railway desde el repositorio.
-3. Agregar un servicio MySQL al mismo proyecto.
+2. Crear una aplicación Docker en Clever Cloud desde el repositorio.
+3. Agregar un add-on MySQL y vincularlo a la aplicación.
 4. Exponer un dominio público HTTPS para el servicio web.
-5. Conectar al servicio web las variables MySQL proporcionadas por Railway.
+5. Clever Cloud inyecta automáticamente las variables `MYSQL_ADDON_*` al vincular la base.
 
 El `Dockerfile` compila backend y ambos frontends. En producción sirve `frontend-router` desde
 Express. Antes de iniciar, `initializeDatabase.ts` crea las tablas y roles que falten sin borrar
@@ -23,12 +23,6 @@ datos existentes.
 
 ```env
 NODE_ENV=production
-PORT=3000
-DB_HOST=
-DB_PORT=3306
-DB_NAME=
-DB_USER=
-DB_PASSWORD=
 JWT_SECRET=
 JWT_EXPIRES_IN=15m
 CORS_ORIGINS=https://DOMINIO_PUBLICO
@@ -50,6 +44,11 @@ MAILTRAP_PASS=
 MAIL_FROM=Sistema Usuarios <no-reply@sistema-usuarios.local>
 ```
 
+En Clever Cloud no se configuran manualmente `PORT` ni `DB_*`: la plataforma define `PORT=8080`
+y el backend acepta directamente `MYSQL_ADDON_HOST`, `MYSQL_ADDON_PORT`, `MYSQL_ADDON_DB`,
+`MYSQL_ADDON_USER` y `MYSQL_ADDON_PASSWORD`. Las variables `DB_*` siguen disponibles para una
+instalación local o cualquier otro proveedor MySQL.
+
 `JWT_SECRET` debe ser aleatorio y tener al menos 32 caracteres. Los secretos reales solo van en
 las variables privadas del servicio; nunca en GitHub.
 
@@ -69,5 +68,5 @@ local.
 5. Probar un usuario común y un administrador.
 6. Verificar que no aparezcan secretos ni tokens en la URL o la consola.
 
-La publicación real necesita acceso a las cuentas de GitHub, Railway, Google, GitHub OAuth,
+La publicación real necesita acceso a las cuentas de GitHub, Clever Cloud, Google, GitHub OAuth,
 Discord Developer Portal y al servicio SMTP. No se deben inventar esas credenciales.
