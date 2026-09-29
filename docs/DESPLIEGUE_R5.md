@@ -69,7 +69,8 @@ local.
 5. Probar un usuario común y un administrador.
 6. Verificar que no aparezcan secretos ni tokens en la URL o la consola.
 
-La aplicación y MySQL ya están publicados en Railway. Google y GitHub tienen callback de producción.
-Discord conserva su aplicación y credenciales, pero el callback de producción debe quedar agregado
-en Discord Developer Portal antes de considerar probado ese acceso. Los secretos solo se guardan en
-las variables privadas de Railway y nunca se documentan ni se suben a GitHub.
+La aplicación y MySQL están publicados en Railway. Google, GitHub y Discord tienen sus callbacks de
+producción registrados. Los accesos reales con GitHub y Discord se completaron desde el dominio
+público y quedaron vinculados al mismo usuario; Google ya estaba verificado en producción. Los
+secretos solo se guardan en las variables privadas de Railway y nunca se documentan ni se suben a
+GitHub.

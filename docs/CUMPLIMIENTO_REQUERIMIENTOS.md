@@ -29,11 +29,12 @@
 - [x] Registrar Google y GitHub y cargar sus credenciales en backend/.env.
 - [x] Completar los recorridos reales con Google y GitHub.
 - [x] Crear la aplicación Discord, registrar el callback local y cargar sus credenciales privadas.
-- [ ] Agregar el callback y las variables Discord del dominio definitivo de producción.
+- [x] Agregar el callback y las variables Discord del dominio definitivo de producción.
 - [x] Crear el servicio y la base MySQL de producción, configurar variables y publicar el dominio.
 - [ ] Validar entrega de correo para cambios de email.
 - [ ] Completar commits con el nombre y email del autor.
 
-Los accesos reales con Google y GitHub fueron comprobados en el entorno local. La aplicación y MySQL
-están activos en Railway en `https://r5-production-96d2.up.railway.app`; la API respondió correctamente
-por `POST /api/health`. Falta agregar y comprobar el callback definitivo de Discord.
+La aplicación y MySQL están activos en Railway en `https://r5-production-96d2.up.railway.app`; la API
+respondió correctamente por `POST /api/health`. Los callbacks de Google, GitHub y Discord están
+registrados. GitHub y Discord se probaron de punta a punta en producción y quedaron vinculados al
+mismo usuario; Google ya estaba comprobado en producción.
