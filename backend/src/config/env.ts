@@ -44,4 +44,4 @@ export const allowedOrigins = env.CORS_ORIGINS.split(',').map((value) => value.t
 
 // Este archivo exporta: env y allowedOrigins.
 // Se usa en: configuración de base de datos, JWT y servidor.
-// Importa de: dotenv y zod; admite variables locales y las generadas por Clever Cloud.
+// Importa de: dotenv y zod; admite variables locales, Railway y proveedores MYSQL_ADDON_*.

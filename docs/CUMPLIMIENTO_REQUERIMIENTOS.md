@@ -25,15 +25,15 @@
 
 ## Pendiente de configuración/prueba externa
 
-- [ ] Aplicar la migración en una copia MySQL de R5 y otorgar permisos.
+- [x] Aplicar el esquema automáticamente en la base MySQL de producción.
 - [x] Registrar Google y GitHub y cargar sus credenciales en backend/.env.
 - [x] Completar los recorridos reales con Google y GitHub.
 - [x] Crear la aplicación Discord, registrar el callback local y cargar sus credenciales privadas.
 - [ ] Agregar el callback y las variables Discord del dominio definitivo de producción.
-- [ ] Crear el servicio y la base MySQL de producción, configurar variables y publicar el dominio.
+- [x] Crear el servicio y la base MySQL de producción, configurar variables y publicar el dominio.
 - [ ] Validar entrega de correo para cambios de email.
 - [ ] Completar commits con el nombre y email del autor.
 
-Los accesos reales con Google y GitHub fueron comprobados en el entorno local. Discord quedó
-registrado y los tres proveedores aparecen activos; falta completar el callback del dominio
-definitivo cuando Railway vuelva a aceptar despliegues.
+Los accesos reales con Google y GitHub fueron comprobados en el entorno local. La aplicación y MySQL
+están activos en Railway en `https://r5-production-96d2.up.railway.app`; la API respondió correctamente
+por `POST /api/health`. Falta agregar y comprobar el callback definitivo de Discord.

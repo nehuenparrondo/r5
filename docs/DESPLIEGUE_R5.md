@@ -7,13 +7,15 @@ El mismo dominio entrega la interfaz, la API y los callbacks OAuth. Esto conserv
 HttpOnly y evita depender de cookies de terceros. `frontend-state` permanece completo, compilable
 y disponible en el repositorio como la segunda implementación exigida.
 
-## Servicios
+## Servicios publicados
 
-1. Subir este repositorio a GitHub.
-2. Crear una aplicación Docker en Clever Cloud desde el repositorio.
-3. Agregar un add-on MySQL y vincularlo a la aplicación.
-4. Exponer un dominio público HTTPS para el servicio web.
-5. Clever Cloud inyecta automáticamente las variables `MYSQL_ADDON_*` al vincular la base.
+- Repositorio: `https://github.com/nehuenparrondo/r5`
+- Aplicación Docker: Railway, servicio `R5`.
+- Base de datos: MySQL administrado por Railway, servicio `MySQL`.
+- Dominio público: `https://r5-production-96d2.up.railway.app`
+
+Railway construye la imagen con el `Dockerfile`. El servicio web recibe las variables de conexión
+mediante referencias privadas al servicio MySQL, sin copiar contraseñas al repositorio.
 
 El `Dockerfile` compila backend y ambos frontends. En producción sirve `frontend-router` desde
 Express. Antes de iniciar, `initializeDatabase.ts` crea las tablas y roles que falten sin borrar
@@ -25,18 +27,18 @@ datos existentes.
 NODE_ENV=production
 JWT_SECRET=
 JWT_EXPIRES_IN=15m
-CORS_ORIGINS=https://DOMINIO_PUBLICO
-APP_URL=https://DOMINIO_PUBLICO
-API_PUBLIC_URL=https://DOMINIO_PUBLICO
+CORS_ORIGINS=https://r5-production-96d2.up.railway.app
+APP_URL=https://r5-production-96d2.up.railway.app
+API_PUBLIC_URL=https://r5-production-96d2.up.railway.app
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
-GOOGLE_REDIRECT_URI=https://DOMINIO_PUBLICO/api/auth/oauth/google/callback
+GOOGLE_REDIRECT_URI=https://r5-production-96d2.up.railway.app/api/auth/oauth/google/callback
 GITHUB_CLIENT_ID=
 GITHUB_CLIENT_SECRET=
-GITHUB_REDIRECT_URI=https://DOMINIO_PUBLICO/api/auth/oauth/github/callback
+GITHUB_REDIRECT_URI=https://r5-production-96d2.up.railway.app/api/auth/oauth/github/callback
 DISCORD_CLIENT_ID=
 DISCORD_CLIENT_SECRET=
-DISCORD_REDIRECT_URI=https://DOMINIO_PUBLICO/api/auth/oauth/discord/callback
+DISCORD_REDIRECT_URI=https://r5-production-96d2.up.railway.app/api/auth/oauth/discord/callback
 MAILTRAP_HOST=sandbox.smtp.mailtrap.io
 MAILTRAP_PORT=2525
 MAILTRAP_USER=
@@ -44,10 +46,9 @@ MAILTRAP_PASS=
 MAIL_FROM=Sistema Usuarios <no-reply@sistema-usuarios.local>
 ```
 
-En Clever Cloud no se configuran manualmente `PORT` ni `DB_*`: la plataforma define `PORT=8080`
-y el backend acepta directamente `MYSQL_ADDON_HOST`, `MYSQL_ADDON_PORT`, `MYSQL_ADDON_DB`,
-`MYSQL_ADDON_USER` y `MYSQL_ADDON_PASSWORD`. Las variables `DB_*` siguen disponibles para una
-instalación local o cualquier otro proveedor MySQL.
+En Railway se configura `PORT=8080`. Las variables `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` y
+`DB_PASSWORD` referencian las variables privadas generadas por el servicio MySQL. El backend también
+acepta `MYSQL_ADDON_*` para conservar portabilidad hacia otros proveedores MySQL.
 
 `JWT_SECRET` debe ser aleatorio y tener al menos 32 caracteres. Los secretos reales solo van en
 las variables privadas del servicio; nunca en GitHub.
@@ -68,5 +69,7 @@ local.
 5. Probar un usuario común y un administrador.
 6. Verificar que no aparezcan secretos ni tokens en la URL o la consola.
 
-La publicación real necesita acceso a las cuentas de GitHub, Clever Cloud, Google, GitHub OAuth,
-Discord Developer Portal y al servicio SMTP. No se deben inventar esas credenciales.
+La aplicación y MySQL ya están publicados en Railway. Google y GitHub tienen callback de producción.
+Discord conserva su aplicación y credenciales, pero el callback de producción debe quedar agregado
+en Discord Developer Portal antes de considerar probado ese acceso. Los secretos solo se guardan en
+las variables privadas de Railway y nunca se documentan ni se suben a GitHub.
