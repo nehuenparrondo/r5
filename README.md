@@ -40,6 +40,18 @@ Para crear el primer administrador:
 npm run create-admin -- admin@ejemplo.com AdminSeguro_123! administrador
 ```
 
+Si un administrador olvida su contraseña, primero compilar el backend y ejecutar el restablecimiento
+desde una consola conectada a la base correspondiente:
+
+```bash
+npm run build
+npm run reset-admin-password -- admin@ejemplo.com
+```
+
+El comando verifica que el email pertenezca a un usuario con rol `admin` y solicita dos veces la
+nueva contraseña sin mostrarla en pantalla. En Railway se ejecuta desde la consola del servicio web,
+donde ya están disponibles las variables privadas de MySQL.
+
 ## 3. Front-end con React Router
 
 ```bash

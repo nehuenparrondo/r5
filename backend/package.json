@@ -9,6 +9,7 @@
     "start": "node dist/server.js",
     "start:production": "node dist/scripts/initializeDatabase.js && node dist/server.js",
     "create-admin": "tsx src/scripts/createAdmin.ts",
+    "reset-admin-password": "node dist/scripts/resetAdminPassword.js",
     "migrate-email-verification": "tsx src/scripts/migrateEmailVerification.ts",
     "migrate-oauth": "tsx src/scripts/migrateOAuth.ts",
     "lint": "npm --prefix .. run lint",
